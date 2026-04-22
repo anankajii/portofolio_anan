@@ -54,8 +54,8 @@ export default function Window({
   return (
     <div
       ref={windowRef}
-      className={`absolute bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-2xl overflow-hidden transition-all border ${
-        isActive ? 'z-40 border-blue-500/50' : 'z-30 border-gray-700/50'
+      className={`absolute rounded-2xl overflow-hidden transition-shadow ${
+        isActive ? 'z-40' : 'z-30'
       }`}
       style={{
         left: `${position.x}px`,
@@ -63,20 +63,33 @@ export default function Window({
         width: `${size.width}px`,
         height: `${size.height}px`,
         maxWidth: '95vw',
-        maxHeight: '85vh'
+        maxHeight: '85vh',
+        background: 'rgba(17, 24, 39, 0.45)',
+        backdropFilter: 'blur(64px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(64px) saturate(180%)',
+        border: isActive
+          ? '1px solid rgba(255, 255, 255, 0.22)'
+          : '1px solid rgba(255, 255, 255, 0.12)',
+        boxShadow: isActive
+          ? '0 32px 80px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.18)'
+          : '0 16px 48px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)',
       }}
       onClick={onFocus}
     >
-      {/* Windows 11 Style Title Bar */}
+      {/* Title Bar */}
       <div
-        className={`flex items-center justify-between px-4 py-2 cursor-move select-none ${
-          isActive ? 'bg-gray-800/90' : 'bg-gray-800/70'
-        }`}
+        className="flex items-center justify-between px-4 py-2 cursor-move select-none"
+        style={{
+          background: isActive
+            ? 'rgba(255,255,255,0.08)'
+            : 'rgba(255,255,255,0.04)',
+          borderBottom: '1px solid rgba(255,255,255,0.12)',
+        }}
         onMouseDown={handleMouseDown}
       >
         {/* Title */}
         <div className="flex items-center gap-2">
-          <span className="text-white font-normal text-sm">{title}</span>
+          <span className="text-white font-normal text-sm drop-shadow">{title}</span>
         </div>
 
         {/* Windows 11 Style Controls */}
@@ -84,7 +97,10 @@ export default function Window({
           {/* Minimize */}
           <button
             onClick={onMinimize}
-            className="w-11 h-8 flex items-center justify-center hover:bg-white/10 transition-colors"
+            className="w-11 h-8 flex items-center justify-center transition-colors rounded"
+            style={{ background: 'transparent' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             title="Minimize"
           >
             <svg width="10" height="1" viewBox="0 0 10 1" fill="white">
@@ -92,9 +108,12 @@ export default function Window({
             </svg>
           </button>
 
-          {/* Maximize (disabled for now) */}
+          {/* Maximize */}
           <button
-            className="w-11 h-8 flex items-center justify-center hover:bg-white/10 transition-colors"
+            className="w-11 h-8 flex items-center justify-center transition-colors rounded"
+            style={{ background: 'transparent' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             title="Maximize"
           >
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1">
@@ -105,7 +124,10 @@ export default function Window({
           {/* Close */}
           <button
             onClick={onClose}
-            className="w-11 h-8 flex items-center justify-center hover:bg-red-600 transition-colors"
+            className="w-11 h-8 flex items-center justify-center transition-colors rounded"
+            style={{ background: 'transparent' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(220,38,38,0.75)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             title="Close"
           >
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1">
@@ -116,7 +138,10 @@ export default function Window({
       </div>
 
       {/* Content */}
-      <div className="h-[calc(100%-40px)] overflow-y-auto bg-gray-900/50">
+      <div
+        className="h-[calc(100%-40px)] overflow-y-auto"
+        style={{ background: 'transparent' }}
+      >
         {content}
       </div>
     </div>

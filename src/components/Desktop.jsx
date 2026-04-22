@@ -7,6 +7,7 @@ import SplashScreen from "./SplashScreen";
 import ProfileCard from "./ProfileCard";
 import MobileView from "./MobileView";
 import MobileSheet from "./MobileSheet";
+import wallpaper from "../assets/windows11-wallpaper.jpg";
 
 // Custom hook to detect mobile
 function useIsMobile() {
@@ -181,11 +182,11 @@ export default function Desktop() {
     if (id === 'calendar' || id === 'contacts' || id === 'language') return;
 
     const contentMap = {
-      projects: <ProjectsContent />,
-      skills: <SkillsContent />,
-      github: <GithubContent />,
-      resume: <ResumeContent />,
-      about: <AboutContent />,
+      projects: <ProjectsContent isMobile={isMobile} />,
+      skills: <SkillsContent isMobile={isMobile} />,
+      github: <GithubContent isMobile={isMobile} />,
+      resume: <ResumeContent isMobile={isMobile} />,
+      about: <AboutContent isMobile={isMobile} />,
     };
 
     const titleMap = {
@@ -231,17 +232,14 @@ export default function Desktop() {
   // Desktop layout (Windows 11)
   return (
     <div className="h-screen w-screen overflow-hidden relative">
-      {/* Background Image - Replace with Windows 11 Wallpaper */}
+      {/* Windows 11 Wallpaper */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('/src/assets/windows11-wallpaper.jpg')`,
-          backgroundColor: '#0f1729' // Fallback color
+          backgroundImage: `url(${wallpaper})`,
+          backgroundColor: '#0f1729',
         }}
-      >
-        {/* Fallback gradient if image not found */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-blue-600/50 to-purple-900/50"></div>
-      </div>
+      />
 
       {/* Desktop Icons */}
       <div className="absolute top-4 left-4 grid grid-cols-1 gap-4 z-10">
@@ -290,7 +288,7 @@ export default function Desktop() {
 }
 
 // Content Components
-function ProjectsContent() {
+function ProjectsContent({ isMobile }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -354,20 +352,15 @@ function ProjectsContent() {
 
   if (isLoading) {
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-gray-900/50">
+      <div className="h-full flex flex-col items-center justify-center">
         {/* Microsoft Store Style Loading */}
         <div className="relative">
           {/* Shopping Bag Icon */}
           <div className="w-32 h-32 mb-8">
             <svg viewBox="0 0 100 100" className="w-full h-full">
-              {/* Bag */}
               <rect x="20" y="30" width="60" height="50" rx="4" fill="#0078D4" opacity="0.2"/>
               <rect x="20" y="30" width="60" height="50" rx="4" fill="none" stroke="#0078D4" strokeWidth="3"/>
-              
-              {/* Handle */}
               <path d="M 35 30 Q 35 15, 50 15 Q 65 15, 65 30" fill="none" stroke="#0078D4" strokeWidth="3"/>
-              
-              {/* Windows Logo in bag */}
               <g transform="translate(50, 55) scale(0.3)">
                 <rect x="-20" y="-20" width="18" height="18" fill="#0078D4"/>
                 <rect x="2" y="-20" width="18" height="18" fill="#0078D4"/>
@@ -383,7 +376,7 @@ function ProjectsContent() {
               {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
-                  className="absolute w-1 h-3 bg-blue-500 rounded-full"
+                  className="absolute w-1 h-3 bg-white/60 rounded-full"
                   style={{
                     left: '50%',
                     top: '0',
@@ -398,8 +391,7 @@ function ProjectsContent() {
             </div>
           </div>
 
-          {/* Loading Text */}
-          <p className="text-white text-center text-sm">Loading projects...</p>
+          <p className="text-white/70 text-center text-sm">Loading projects...</p>
         </div>
 
         <style>{`
@@ -417,13 +409,13 @@ function ProjectsContent() {
       {/* Sidebar */}
       <div className="flex gap-6">
         <div className="w-32 flex-shrink-0 space-y-4">
-          <button className="flex items-center gap-2 text-blue-400 text-sm">
+          <button className="flex items-center gap-2 text-cyan-300 text-sm">
             ⭐ All Projects
           </button>
-          <button className="flex items-center gap-2 text-gray-400 text-sm hover:text-white transition">
+          <button className="flex items-center gap-2 text-white/50 text-sm hover:text-white transition">
             📱 Mobile
           </button>
-          <button className="flex items-center gap-2 text-gray-400 text-sm hover:text-white transition">
+          <button className="flex items-center gap-2 text-white/50 text-sm hover:text-white transition">
             🌐 Web
           </button>
         </div>
@@ -438,7 +430,13 @@ function ProjectsContent() {
                 style={{ animationDelay: `${idx * 0.1}s` }}
               >
                 {/* Project Card */}
-                <div className="bg-gray-800/50 rounded-xl overflow-hidden hover:bg-gray-800/70 transition-all duration-300 hover:scale-[1.02]">
+                <div
+                  className="rounded-xl overflow-hidden transition-all duration-300 hover:scale-[1.02]"
+                  style={isMobile
+                    ? { background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }
+                    : { background: 'rgba(17,24,39,0.45)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.15)' }
+                  }
+                >
                   {/* Project Image/Preview */}
                   <div className={`h-40 bg-gradient-to-br ${project.gradient} relative overflow-hidden`}>
                     <div className="absolute inset-0 opacity-30">
@@ -457,7 +455,14 @@ function ProjectsContent() {
                       </div>
                     </div>
                     {/* Category Badge */}
-                    <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded text-xs text-white">
+                    <div
+                      className="absolute top-2 right-2 px-2 py-1 rounded text-xs text-white"
+                      style={{
+                        background: 'rgba(0,0,0,0.35)',
+                        backdropFilter: 'blur(8px)',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                      }}
+                    >
                       {project.category}
                     </div>
                   </div>
@@ -465,14 +470,14 @@ function ProjectsContent() {
                   {/* Project Info */}
                   <div className="p-4">
                     <div className="flex items-start gap-3">
-                      <div className={`w-10 h-10 ${project.color} rounded-lg flex items-center justify-center text-xl flex-shrink-0`}>
+                      <div className={`w-10 h-10 ${project.color} rounded-lg flex items-center justify-center text-xl flex-shrink-0 opacity-90`}>
                         {project.icon}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-white font-medium text-sm truncate">
                           {project.title}
                         </h3>
-                        <p className="text-gray-400 text-xs mt-0.5">
+                        <p className="text-white/50 text-xs mt-0.5">
                           {project.category}
                         </p>
                       </div>
@@ -490,7 +495,11 @@ function ProjectsContent() {
 
 
 
-function AboutContent() {
+function AboutContent({ isMobile }) {
+  const cardStyle = isMobile
+    ? { background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)' }
+    : { background: 'rgba(17, 24, 39, 0.4)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.20)' };
+
   return (
     <div className="p-6 text-white">
       <div className="flex items-center gap-4 mb-6">
@@ -507,9 +516,9 @@ function AboutContent() {
         <p>Fullstack Developer dengan passion dalam membangun sistem yang real-world dan bermanfaat.</p>
         <p>Berpengalaman dalam Java, Laravel, React, dan Vue.js untuk membangun solusi yang efisien dan scalable.</p>
       </div>
-      <div className="mt-5 space-y-2">
+      <div className="mt-5 space-y-2 rounded-2xl p-4" style={cardStyle}>
         <h3 className="font-semibold text-white">🎯 Focus Areas</h3>
-        <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
+        <ul className="text-sm text-gray-200 space-y-1 list-disc list-inside">
           <li>Backend: Java, Laravel, Node.js</li>
           <li>Frontend: React, Vue.js</li>
           <li>Database: MySQL, PostgreSQL, MongoDB</li>
@@ -520,7 +529,7 @@ function AboutContent() {
   );
 }
 
-function SkillsContent() {
+function SkillsContent({ isMobile }) {
   const skills = [
     { name: "Java", level: 90, icon: "☕" },
     { name: "Laravel", level: 85, icon: "🔺" },
@@ -531,6 +540,8 @@ function SkillsContent() {
     { name: "PostgreSQL", level: 75, icon: "🐘" },
     { name: "MongoDB", level: 70, icon: "🍃" },
   ];
+
+  const trackBg = isMobile ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.12)';
 
   return (
     <div className="p-6 space-y-4">
@@ -543,7 +554,7 @@ function SkillsContent() {
             </span>
             <span className="text-cyan-400">{skill.level}%</span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className="w-full rounded-full h-2" style={{ background: trackBg }}>
             <div 
               className="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full transition-all duration-1000"
               style={{ width: `${skill.level}%` }}
@@ -555,7 +566,7 @@ function SkillsContent() {
   );
 }
 
-function GithubContent() {
+function GithubContent({ isMobile }) {
   const [profile, setProfile] = useState(null);
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -583,12 +594,12 @@ function GithubContent() {
 
   if (loading) {
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-[#0d1117]">
+      <div className="h-full flex flex-col items-center justify-center" style={{ minHeight: 200 }}>
         <div className="relative w-12 h-12 mb-4">
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-1 h-3 bg-gray-400 rounded-full"
+              className="absolute w-1 h-3 bg-white/60 rounded-full"
               style={{
                 left: '50%', top: '0',
                 transformOrigin: '0.5px 24px',
@@ -599,7 +610,7 @@ function GithubContent() {
             />
           ))}
         </div>
-        <p className="text-gray-400 text-sm">Loading Github profile...</p>
+        <p className="text-white/70 text-sm">Loading Github profile...</p>
         <style>{`@keyframes spin-fade { 0%,100%{opacity:.2} 50%{opacity:1} }`}</style>
       </div>
     );
@@ -607,11 +618,21 @@ function GithubContent() {
 
   if (error || !profile) {
     return (
-      <div className="h-full flex items-center justify-center bg-[#0d1117]">
+      <div className="h-full flex items-center justify-center" style={{ minHeight: 200 }}>
         <p className="text-red-400">{error}</p>
       </div>
     );
   }
+
+  const glassCard = isMobile
+    ? { background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)' }
+    : { background: 'rgba(17,24,39,0.5)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(40px)' };
+  const glassHeader = isMobile
+    ? { background: 'rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.12)' }
+    : { background: 'rgba(17,24,39,0.5)', borderBottom: '1px solid rgba(255,255,255,0.15)' };
+  const glassStat = isMobile
+    ? { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }
+    : { background: 'rgba(17,24,39,0.5)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(20px)' };
 
   const langColors = {
     JavaScript: '#f1e05a', TypeScript: '#3178c6', Python: '#3572A5',
@@ -620,15 +641,16 @@ function GithubContent() {
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-[#0d1117] text-white">
+    <div className="h-full overflow-y-auto text-white">
       {/* Header / Profile */}
-      <div className="bg-[#161b22] border-b border-[#30363d] px-6 py-5">
+      <div className="px-6 py-5" style={glassHeader}>
         <div className="flex items-start gap-5">
           {/* Avatar */}
           <img
             src={profile.avatar_url}
             alt={profile.login}
-            className="w-20 h-20 rounded-full border-2 border-[#30363d]"
+            className="w-20 h-20 rounded-full"
+            style={{ border: '2px solid rgba(255,255,255,0.25)' }}
           />
           {/* Info */}
           <div className="flex-1">
@@ -636,12 +658,17 @@ function GithubContent() {
               <h1 className="text-xl font-bold text-white">
                 {profile.name || profile.login}
               </h1>
-              <span className="text-gray-400 text-sm">@{profile.login}</span>
+              <span className="text-white/50 text-sm">@{profile.login}</span>
               <a
                 href={`https://github.com/${profile.login}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-auto px-3 py-1 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] rounded-md text-sm transition flex items-center gap-1"
+                className="ml-auto px-3 py-1 rounded-md text-sm transition flex items-center gap-1"
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  backdropFilter: 'blur(10px)',
+                }}
               >
                 <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white">
                   <path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/>
@@ -650,23 +677,23 @@ function GithubContent() {
               </a>
             </div>
             {profile.bio && (
-              <p className="text-gray-400 text-sm mt-1">{profile.bio}</p>
+              <p className="text-white/60 text-sm mt-1">{profile.bio}</p>
             )}
             {/* Location / Company */}
             <div className="flex items-center gap-4 mt-2 flex-wrap">
               {profile.location && (
-                <span className="text-gray-400 text-xs flex items-center gap-1">
+                <span className="text-white/50 text-xs flex items-center gap-1">
                   📍 {profile.location}
                 </span>
               )}
               {profile.company && (
-                <span className="text-gray-400 text-xs flex items-center gap-1">
+                <span className="text-white/50 text-xs flex items-center gap-1">
                   🏢 {profile.company}
                 </span>
               )}
               {profile.blog && (
                 <a href={profile.blog} target="_blank" rel="noopener noreferrer"
-                  className="text-blue-400 text-xs hover:underline flex items-center gap-1">
+                  className="text-cyan-300 text-xs hover:underline flex items-center gap-1">
                   🔗 {profile.blog}
                 </a>
               )}
@@ -676,25 +703,23 @@ function GithubContent() {
 
         {/* Stats */}
         <div className="flex gap-4 mt-4 flex-wrap">
-          <div className="bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-2 text-center min-w-[80px]">
-            <div className="text-cyan-400 font-bold text-lg">{profile.public_repos}</div>
-            <div className="text-gray-400 text-xs">Repos</div>
-          </div>
-          <div className="bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-2 text-center min-w-[80px]">
-            <div className="text-cyan-400 font-bold text-lg">{profile.followers}</div>
-            <div className="text-gray-400 text-xs">Followers</div>
-          </div>
-          <div className="bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-2 text-center min-w-[80px]">
-            <div className="text-cyan-400 font-bold text-lg">{profile.following}</div>
-            <div className="text-gray-400 text-xs">Following</div>
-          </div>
+          {[
+            { label: 'Repos', value: profile.public_repos },
+            { label: 'Followers', value: profile.followers },
+            { label: 'Following', value: profile.following },
+          ].map((stat) => (
+            <div key={stat.label} className="rounded-lg px-4 py-2 text-center min-w-[80px]" style={glassStat}>
+              <div className="text-cyan-400 font-bold text-lg">{stat.value}</div>
+              <div className="text-white/50 text-xs">{stat.label}</div>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Repositories */}
       <div className="p-6">
         <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-          <svg viewBox="0 0 16 16" className="w-4 h-4 fill-gray-400">
+          <svg viewBox="0 0 16 16" className="w-4 h-4 fill-white/60">
             <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"/>
           </svg>
           Popular Repositories
@@ -706,27 +731,29 @@ function GithubContent() {
               href={repo.html_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#58a6ff] transition-all group"
+              className="rounded-lg p-4 transition-all group"
+              style={glassCard}
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <svg viewBox="0 0 16 16" className="w-4 h-4 fill-gray-400 flex-shrink-0">
+                  <svg viewBox="0 0 16 16" className="w-4 h-4 fill-white/50 flex-shrink-0">
                     <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"/>
                   </svg>
-                  <span className="text-blue-400 group-hover:underline text-sm font-medium truncate">
+                  <span className="text-cyan-300 group-hover:underline text-sm font-medium truncate">
                     {repo.name}
                   </span>
                 </div>
-                {repo.private ? (
-                  <span className="text-xs border border-[#30363d] rounded-full px-2 py-0.5 text-gray-400 flex-shrink-0">Private</span>
-                ) : (
-                  <span className="text-xs border border-[#30363d] rounded-full px-2 py-0.5 text-gray-400 flex-shrink-0">Public</span>
-                )}
+                <span
+                  className="text-xs rounded-full px-2 py-0.5 text-white/50 flex-shrink-0"
+                  style={{ border: '1px solid rgba(255,255,255,0.15)' }}
+                >
+                  {repo.private ? 'Private' : 'Public'}
+                </span>
               </div>
               {repo.description && (
-                <p className="text-gray-400 text-xs mb-3 line-clamp-2">{repo.description}</p>
+                <p className="text-white/50 text-xs mb-3 line-clamp-2">{repo.description}</p>
               )}
-              <div className="flex items-center gap-3 text-xs text-gray-400">
+              <div className="flex items-center gap-3 text-xs text-white/40">
                 {repo.language && (
                   <span className="flex items-center gap-1">
                     <span
@@ -737,14 +764,10 @@ function GithubContent() {
                   </span>
                 )}
                 {repo.stargazers_count > 0 && (
-                  <span className="flex items-center gap-1">
-                    ⭐ {repo.stargazers_count}
-                  </span>
+                  <span className="flex items-center gap-1">⭐ {repo.stargazers_count}</span>
                 )}
                 {repo.forks_count > 0 && (
-                  <span className="flex items-center gap-1">
-                    🍴 {repo.forks_count}
-                  </span>
+                  <span className="flex items-center gap-1">🍴 {repo.forks_count}</span>
                 )}
               </div>
             </a>
@@ -755,14 +778,20 @@ function GithubContent() {
   );
 }
 
-function LinkedInContent() {
+function LinkedInContent({ isMobile }) {
+  const sectionCard = isMobile
+    ? { background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }
+    : { background: 'rgba(17,24,39,0.4)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.20)' };
+
   return (
-    <div className="h-full overflow-y-auto bg-[#1b1f23] text-white">
+    <div className="h-full overflow-y-auto text-white">
       {/* Cover Photo */}
-      <div className="h-32 bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-500 relative">
+      <div className="h-32 bg-gradient-to-r from-blue-700/80 via-blue-500/80 to-cyan-500/80 relative"
+        style={{ backdropFilter: 'blur(10px)' }}>
         {/* Avatar */}
         <div className="absolute -bottom-10 left-6">
-          <div className="w-20 h-20 rounded-full border-4 border-[#1b1f23] bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-3xl shadow-xl">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-3xl shadow-xl"
+            style={{ border: '4px solid rgba(255,255,255,0.2)' }}>
             👨‍💻
           </div>
         </div>
@@ -771,7 +800,12 @@ function LinkedInContent() {
           href="https://www.linkedin.com/in/m-khanan-mukhtar-0b81a8302/"
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute top-3 right-3 px-3 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg text-xs font-medium transition flex items-center gap-1.5"
+          className="absolute top-3 right-3 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5"
+          style={{
+            background: 'rgba(255,255,255,0.15)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.3)',
+          }}
         >
           <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white">
             <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
@@ -781,21 +815,22 @@ function LinkedInContent() {
       </div>
 
       {/* Profile Info */}
-      <div className="pt-12 px-6 pb-4 bg-[#1b1f23] border-b border-white/10">
+      <div
+        className="pt-12 px-6 pb-4"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.12)' }}
+      >
         <h1 className="text-xl font-bold text-white">M. Khanan Mukhtar</h1>
-        <p className="text-gray-300 text-sm mt-0.5">Fullstack Developer · Java & Laravel Enthusiast</p>
-        <p className="text-gray-400 text-xs mt-1 flex items-center gap-1">
-          📍 Indonesia
-        </p>
+        <p className="text-white/70 text-sm mt-0.5">Fullstack Developer · Java & Laravel Enthusiast</p>
+        <p className="text-white/50 text-xs mt-1 flex items-center gap-1">📍 Indonesia</p>
         {/* Stats */}
         <div className="flex gap-4 mt-3">
           <div className="text-center">
-            <div className="text-blue-400 font-bold text-sm">5K+</div>
-            <div className="text-gray-400 text-xs">Connections</div>
+            <div className="text-cyan-300 font-bold text-sm">5K+</div>
+            <div className="text-white/50 text-xs">Connections</div>
           </div>
           <div className="text-center">
-            <div className="text-blue-400 font-bold text-sm">500+</div>
-            <div className="text-gray-400 text-xs">Followers</div>
+            <div className="text-cyan-300 font-bold text-sm">500+</div>
+            <div className="text-white/50 text-xs">Followers</div>
           </div>
         </div>
         {/* Action Buttons */}
@@ -804,7 +839,12 @@ function LinkedInContent() {
             href="https://www.linkedin.com/in/m-khanan-mukhtar-0b81a8302/"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-full text-sm font-semibold transition"
+            className="px-5 py-1.5 rounded-full text-sm font-semibold transition"
+            style={{
+              background: 'rgba(37,99,235,0.6)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(96,165,250,0.4)',
+            }}
           >
             Connect
           </a>
@@ -812,7 +852,12 @@ function LinkedInContent() {
             href="https://www.linkedin.com/messaging/compose/?to=m-khanan-mukhtar-0b81a8302"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-sm font-semibold transition"
+            className="px-5 py-1.5 rounded-full text-sm font-semibold transition"
+            style={{
+              background: 'rgba(255,255,255,0.10)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255,255,255,0.20)',
+            }}
           >
             Message
           </a>
@@ -820,9 +865,9 @@ function LinkedInContent() {
       </div>
 
       {/* About */}
-      <div className="mx-4 mt-3 bg-[#161b22] border border-white/10 rounded-xl p-4">
+      <div className="mx-4 mt-3 rounded-xl p-4" style={sectionCard}>
         <h2 className="font-semibold text-white mb-2">About</h2>
-        <p className="text-gray-300 text-sm leading-relaxed">
+        <p className="text-white/65 text-sm leading-relaxed">
           Fullstack Developer dengan passion dalam membangun sistem yang real-world dan bermanfaat.
           Berpengalaman dalam Java, Laravel, React, dan Vue.js. Saya suka membangun solusi yang
           efisien dan scalable untuk berbagai kebutuhan bisnis.
@@ -830,27 +875,35 @@ function LinkedInContent() {
       </div>
 
       {/* Experience */}
-      <div className="mx-4 mt-3 bg-[#161b22] border border-white/10 rounded-xl p-4">
+      <div className="mx-4 mt-3 rounded-xl p-4" style={sectionCard}>
         <h2 className="font-semibold text-white mb-3">Experience</h2>
         <div className="space-y-4">
           <div className="flex gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-lg flex-shrink-0">💼</div>
+            <div className="w-10 h-10 bg-blue-600/60 rounded-lg flex items-center justify-center text-lg flex-shrink-0"
+              style={{ border: '1px solid rgba(96,165,250,0.3)' }}>💼</div>
             <div>
               <h3 className="text-white text-sm font-medium">Fullstack Developer</h3>
-              <p className="text-gray-400 text-xs">Freelance · Full-time</p>
-              <p className="text-gray-500 text-xs">2022 – Present · 2+ yrs</p>
-              <p className="text-gray-400 text-xs mt-1">Java, Laravel, React, Vue.js, MySQL</p>
+              <p className="text-white/50 text-xs">Freelance · Full-time</p>
+              <p className="text-white/40 text-xs">2022 – Present · 2+ yrs</p>
+              <p className="text-white/50 text-xs mt-1">Java, Laravel, React, Vue.js, MySQL</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Skills */}
-      <div className="mx-4 mt-3 bg-[#161b22] border border-white/10 rounded-xl p-4">
+      <div className="mx-4 mt-3 rounded-xl p-4" style={sectionCard}>
         <h2 className="font-semibold text-white mb-3">Top Skills</h2>
         <div className="flex flex-wrap gap-2">
           {['Java', 'Laravel', 'React', 'Vue.js', 'Node.js', 'MySQL', 'PostgreSQL', 'REST API', 'Git', 'Docker'].map((skill) => (
-            <span key={skill} className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-xs text-blue-300">
+            <span
+              key={skill}
+              className="px-3 py-1 rounded-full text-xs text-cyan-200"
+              style={{
+                background: 'rgba(6,182,212,0.15)',
+                border: '1px solid rgba(6,182,212,0.3)',
+              }}
+            >
               {skill}
             </span>
           ))}
@@ -858,14 +911,15 @@ function LinkedInContent() {
       </div>
 
       {/* Education */}
-      <div className="mx-4 mt-3 mb-4 bg-[#161b22] border border-white/10 rounded-xl p-4">
+      <div className="mx-4 mt-3 mb-4 rounded-xl p-4" style={sectionCard}>
         <h2 className="font-semibold text-white mb-3">Education</h2>
         <div className="flex gap-3">
-          <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-lg flex-shrink-0">🎓</div>
+          <div className="w-10 h-10 bg-green-600/60 rounded-lg flex items-center justify-center text-lg flex-shrink-0"
+            style={{ border: '1px solid rgba(74,222,128,0.3)' }}>🎓</div>
           <div>
             <h3 className="text-white text-sm font-medium">Your University Name</h3>
-            <p className="text-gray-400 text-xs">Computer Science / Informatics</p>
-            <p className="text-gray-500 text-xs">2020 – 2024</p>
+            <p className="text-white/50 text-xs">Computer Science / Informatics</p>
+            <p className="text-white/40 text-xs">2020 – 2024</p>
           </div>
         </div>
       </div>
@@ -873,7 +927,13 @@ function LinkedInContent() {
   );
 }
 
-function ResumeContent() {
+function ResumeContent({ isMobile }) {
+  const cardStyle = isMobile
+    ? { background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)' }
+    : { background: 'rgba(17,24,39,0.4)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.20)' };
+  const btnBg = isMobile ? 'rgba(6,182,212,0.3)' : 'rgba(6,182,212,0.25)';
+  const btnHover = isMobile ? 'rgba(6,182,212,0.45)' : 'rgba(6,182,212,0.4)';
+
   return (
     <div className="p-6 text-white">
       <div className="text-center mb-6">
@@ -881,28 +941,33 @@ function ResumeContent() {
         <h2 className="text-2xl font-bold">Resume / CV</h2>
       </div>
       <div className="space-y-4">
-        <div className="bg-white/10 rounded-lg p-4">
+        <div className="rounded-xl p-4" style={cardStyle}>
           <h3 className="font-bold mb-2">📧 Contact</h3>
-          <p className="text-sm text-gray-300">your-email@example.com</p>
-          <p className="text-sm text-gray-300">+62 xxx xxxx xxxx</p>
+          <p className="text-sm text-white/70">your-email@example.com</p>
+          <p className="text-sm text-white/70">+62 xxx xxxx xxxx</p>
         </div>
-        <div className="bg-white/10 rounded-lg p-4">
+        <div className="rounded-xl p-4" style={cardStyle}>
           <h3 className="font-bold mb-2">🎓 Education</h3>
-          <p className="text-sm text-gray-300">Your University Name</p>
-          <p className="text-sm text-gray-300">Computer Science / Informatics</p>
+          <p className="text-sm text-white/70">Your University Name</p>
+          <p className="text-sm text-white/70">Computer Science / Informatics</p>
         </div>
-        <div className="bg-white/10 rounded-lg p-4">
+        <div className="rounded-xl p-4" style={cardStyle}>
           <h3 className="font-bold mb-2">🔗 Links</h3>
           <a 
             href="https://github.com/anankajii" 
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-blue-400 hover:underline block"
+            className="text-sm text-cyan-300 hover:underline block"
           >
             github.com/anankajii
           </a>
         </div>
-        <button className="w-full px-6 py-3 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition font-medium">
+        <button
+          className="w-full px-6 py-3 rounded-xl transition font-medium text-white"
+          style={{ background: btnBg, backdropFilter: 'blur(20px)', border: '1px solid rgba(6,182,212,0.45)' }}
+          onMouseEnter={e => e.currentTarget.style.background = btnHover}
+          onMouseLeave={e => e.currentTarget.style.background = btnBg}
+        >
           Download Full Resume (PDF)
         </button>
       </div>

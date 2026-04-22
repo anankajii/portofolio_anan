@@ -5,6 +5,19 @@ import Taskbar from "./Taskbar";
 import WindowsTaskbar from "./WindowsTaskbar";
 import SplashScreen from "./SplashScreen";
 import ProfileCard from "./ProfileCard";
+import MobileView from "./MobileView";
+import MobileSheet from "./MobileSheet";
+
+// Custom hook to detect mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return isMobile;
+}
 
 // Icon Components
 function FlutterIcon() {
@@ -74,10 +87,8 @@ export default function Desktop() {
   const [showProfileCard, setShowProfileCard] = useState(false);
   const [openWindows, setOpenWindows] = useState([]);
   const [activeWindow, setActiveWindow] = useState(null);
-
-  if (showSplash) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} />;
-  }
+  const [mobileSheet, setMobileSheet] = useState(null); // { id, title, content }
+  const isMobile = useIsMobile();
 
   const openWindow = (id, title, content) => {
     if (!openWindows.find(w => w.id === id)) {
@@ -154,29 +165,70 @@ export default function Desktop() {
   ];
 
   const handleIconClick = (id) => {
-    // LinkedIn → langsung redirect ke web
+    // External redirects
     if (id === 'linkedin') {
       window.open('https://www.linkedin.com/in/m-khanan-mukhtar-0b81a8302/', '_blank');
       return;
     }
+    if (id === 'call') {
+      window.location.href = 'tel:+62xxxxxxxxxx';
+      return;
+    }
+    if (id === 'mail') {
+      window.location.href = 'mailto:your-email@example.com';
+      return;
+    }
+    if (id === 'calendar' || id === 'contacts' || id === 'language') return;
 
     const contentMap = {
       projects: <ProjectsContent />,
       skills: <SkillsContent />,
       github: <GithubContent />,
-      resume: <ResumeContent />
+      resume: <ResumeContent />,
+      about: <AboutContent />,
     };
 
     const titleMap = {
       projects: "My Projects",
       skills: "Skills & Technologies",
       github: "Github - anankajii",
-      resume: "Resume / CV"
+      resume: "Resume / CV",
+      about: "About Me",
     };
+
+    if (!contentMap[id]) return;
+
+    // Mobile: open bottom sheet instead of window
+    if (isMobile) {
+      setMobileSheet({ id, title: titleMap[id], content: contentMap[id] });
+      return;
+    }
 
     openWindow(id, titleMap[id], contentMap[id]);
   };
 
+  // Mobile: skip Desktop splash, MobileView has its own AppleSplash
+  // Desktop: show Windows splash
+  if (showSplash && !isMobile) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
+
+  // Mobile: render MobileView (which has AppleSplash inside)
+  if (isMobile) {
+    return (
+      <>
+        <MobileView onIconClick={handleIconClick} />
+        {mobileSheet && (
+          <MobileSheet
+            {...mobileSheet}
+            onClose={() => setMobileSheet(null)}
+          />
+        )}
+      </>
+    );
+  }
+
+  // Desktop layout (Windows 11)
   return (
     <div className="h-screen w-screen overflow-hidden relative">
       {/* Background Image - Replace with Windows 11 Wallpaper */}
@@ -437,6 +489,36 @@ function ProjectsContent() {
 }
 
 
+
+function AboutContent() {
+  return (
+    <div className="p-6 text-white">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full flex items-center justify-center text-4xl shadow-lg flex-shrink-0">
+          👨‍💻
+        </div>
+        <div>
+          <h2 className="text-xl font-bold">M. Khanan Mukhtar</h2>
+          <p className="text-cyan-400 text-sm">Fullstack Developer</p>
+          <p className="text-gray-400 text-xs mt-1">📍 Indonesia</p>
+        </div>
+      </div>
+      <div className="space-y-3 text-gray-300 text-sm leading-relaxed">
+        <p>Fullstack Developer dengan passion dalam membangun sistem yang real-world dan bermanfaat.</p>
+        <p>Berpengalaman dalam Java, Laravel, React, dan Vue.js untuk membangun solusi yang efisien dan scalable.</p>
+      </div>
+      <div className="mt-5 space-y-2">
+        <h3 className="font-semibold text-white">🎯 Focus Areas</h3>
+        <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
+          <li>Backend: Java, Laravel, Node.js</li>
+          <li>Frontend: React, Vue.js</li>
+          <li>Database: MySQL, PostgreSQL, MongoDB</li>
+          <li>Tools: Git, Docker, REST API</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
 
 function SkillsContent() {
   const skills = [

@@ -30,12 +30,12 @@ export default function SplashScreen({ onComplete }) {
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center">
+    <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center select-none">
       {/* Windows Logo */}
       <div className="mb-16">
         <svg 
-          width="120" 
-          height="120" 
+          width="80" 
+          height="80" 
           viewBox="0 0 88 88" 
           className="animate-pulse"
         >
@@ -59,7 +59,7 @@ export default function SplashScreen({ onComplete }) {
       </div>
 
       {/* Progress Bar */}
-      <div className="w-64 h-1 bg-gray-800 rounded-full overflow-hidden">
+      <div className="w-48 h-1 bg-gray-800 rounded-full overflow-hidden">
         <div 
           className="h-full bg-white transition-all duration-300 ease-out"
           style={{ width: `${progress}%` }}
@@ -67,7 +67,7 @@ export default function SplashScreen({ onComplete }) {
       </div>
 
       {/* Loading Text */}
-      <div className="mt-8 text-white text-sm">
+      <div className="mt-6 text-gray-400 text-sm">
         {progress < 30 && "Starting..."}
         {progress >= 30 && progress < 60 && "Loading portfolio..."}
         {progress >= 60 && progress < 90 && "Almost there..."}

@@ -62,8 +62,8 @@ export default function Window({
         top: `${position.y}px`,
         width: `${size.width}px`,
         height: `${size.height}px`,
-        maxWidth: '90vw',
-        maxHeight: '80vh'
+        maxWidth: '95vw',
+        maxHeight: '85vh'
       }}
       onClick={onFocus}
     >

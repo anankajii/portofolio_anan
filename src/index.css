@@ -1,11 +1,34 @@
 @import "tailwindcss";
 
+/* Performance optimizations for mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
 body {
   background: #020617;
   color: white;
   margin: 0;
   padding: 0;
   overflow: hidden;
+  /* Enable hardware acceleration */
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* GPU acceleration for animations */
+.backdrop-blur-xl,
+.backdrop-blur-2xl {
+  will-change: backdrop-filter;
+  transform: translateZ(0);
+}
+
+/* Optimize touch interactions */
+button,
+a {
+  touch-action: manipulation;
 }
 
 @keyframes blob {

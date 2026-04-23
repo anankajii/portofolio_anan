@@ -97,27 +97,27 @@ export default function ProfileCard({ onClose }) {
           {/* Phone */}
           <div className="flex items-center justify-between py-2 border-b border-white/10">
             <span className="text-gray-300 text-sm font-medium">Phone</span>
-            <span className="text-white text-sm">+593 99 598 0073</span>
+            <span className="text-white text-sm">+6287864652966</span>
           </div>
 
           {/* Email */}
           <div className="flex items-center justify-between py-2 border-b border-white/10">
             <span className="text-gray-300 text-sm font-medium">Email</span>
-            <span className="text-white text-sm">danicoy@gmail.com</span>
+            <span className="text-white text-sm">ananakun0@gmail.com</span>
           </div>
-
-          {/* Website */}
+{/* 
+          Website
           <div className="flex items-center justify-between py-2 border-b border-white/10">
             <span className="text-gray-300 text-sm font-medium">Website</span>
             <a href="https://dctech.dev" target="_blank" rel="noopener noreferrer" className="text-blue-400 text-sm hover:underline">
-              https://dctech.dev
+              
             </a>
-          </div>
+          </div> */}
 
           {/* Experience */}
           <div className="flex items-center justify-between py-2 border-b border-white/10">
             <span className="text-gray-300 text-sm font-medium">Experience</span>
-            <span className="text-white text-sm">7+ years</span>
+            <span className="text-white text-sm">beginner</span>
           </div>
 
           {/* Skills */}
@@ -142,8 +142,8 @@ export default function ProfileCard({ onClose }) {
               👨‍💻
             </div>
             <div>
-              <h3 className="text-white font-bold text-sm">Daniel Coyula</h3>
-              <p className="text-gray-300 text-xs">Senior Flutter Engineer</p>
+              <h3 className="text-white font-bold text-sm">M.Khanan Mukhtar</h3>
+              <p className="text-gray-300 text-xs">Politeknik Negeri Jember</p>
             </div>
           </div>
 

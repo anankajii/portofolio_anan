@@ -3,8 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>portfolio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <!-- Preload critical assets for faster mobile loading -->
+    <link rel="preload" as="image" href="/src/assets/windows11-wallpaper.jpg" />
+    <title>M. Khanan Mukhtar - Portfolio</title>
+    <style>
+      /* Prevent iOS Safari from adjusting text size */
+      html {
+        -webkit-text-size-adjust: 100%;
+        height: 100%;
+      }
+      body {
+        height: 100%;
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

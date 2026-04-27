@@ -13,19 +13,18 @@ export default function AppleSplash({ onComplete }) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[9999] bg-black flex flex-col items-center overflow-hidden"
       style={{
         opacity: phase === "done" ? 0 : 1,
         transition: phase === "done" ? "opacity 0.4s ease-out" : "none",
       }}
     >
-      {/* Apple Logo SVG - centered properly */}
+      {/* Apple Logo — absolute center */}
       <div
-        className="flex items-center justify-center"
+        className="absolute inset-0 flex items-center justify-center"
         style={{
-          opacity: phase === "logo" ? 1 : 1,
           transform: phase === "logo" ? "scale(0.85)" : "scale(1)",
-          transition: "opacity 0.6s ease-out, transform 0.6s ease-out",
+          transition: "transform 0.6s ease-out",
         }}
       >
         <svg
@@ -39,27 +38,17 @@ export default function AppleSplash({ onComplete }) {
         </svg>
       </div>
 
-      {/* Progress bar — iOS style, centered below logo */}
-      {phase === "progress" && (
-        <div className="absolute" style={{ bottom: '40vh' }}>
+      {/* Progress bar — pinned to bottom, iOS style */}
+      <div className="absolute bottom-[10vh] flex justify-center w-full">
+        {phase === "progress" && (
           <div className="w-32 h-1 bg-white/20 rounded-full overflow-hidden">
             <div
               className="h-full bg-white rounded-full"
-              style={{
-                animation: "ios-progress 1.2s ease-out forwards",
-              }}
+              style={{ animation: "ios-progress 1.2s ease-out forwards" }}
             />
           </div>
-        </div>
-      )}
-
-      <style>{`
-        @keyframes ios-progress {
-          0%   { width: 0%; }
-          50%  { width: 60%; }
-          100% { width: 100%; }
-        }
-      `}</style>
+        )}
+      </div>
     </div>
   );
 }

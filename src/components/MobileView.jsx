@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import AppleSplash from "./AppleSplash";
 import iosWallpaper from "../assets/ios-wallpaper.jpg";
+import phoneIcon from "../assets/telephone-mobile-icon.jpg";
+import emailIcon from "../assets/email-mobile-icon.jpg";
 
 export default function MobileView({ onIconClick }) {
   const [time, setTime] = useState(new Date());
@@ -106,23 +108,28 @@ export default function MobileView({ onIconClick }) {
     {
       id: "call", label: "Phone",
       icon: (
-        <div className="w-full h-full rounded-[23%] overflow-hidden bg-gradient-to-br from-[#34C759] to-[#248A3D] flex items-center justify-center"
-          style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
-          <svg viewBox="0 0 24 24" className="w-8 h-8 fill-white">
-            <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/>
-          </svg>
+        <div className="w-full h-full rounded-[23%] overflow-hidden bg-black"
+          style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.25)' }}>
+          <img 
+            src={phoneIcon} 
+            alt="Phone" 
+            className="w-full h-full"
+            style={{ 
+              objectFit: 'cover',
+              objectPosition: '0% 0%',
+              transform: 'scale(1.4)',
+              transformOrigin: '35% 35%',
+            }} 
+          />
         </div>
       ),
     },
     {
       id: "mail", label: "Mail",
       icon: (
-        <div className="w-full h-full rounded-[23%] overflow-hidden bg-gradient-to-br from-[#007AFF] to-[#0051D5] flex items-center justify-center"
-          style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
-          <svg viewBox="0 0 60 44" className="w-9 h-7">
-            <rect x="1" y="1" width="58" height="42" rx="4" fill="none" stroke="white" strokeWidth="2.5"/>
-            <polyline points="1,1 30,26 59,1" fill="none" stroke="white" strokeWidth="2.5"/>
-          </svg>
+        <div className="w-full h-full rounded-[23%] overflow-hidden"
+          style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.25)' }}>
+          <img src={emailIcon} alt="Mail" className="w-full h-full object-cover" />
         </div>
       ),
     },

@@ -101,6 +101,22 @@ export default function MobileView({ onIconClick }) {
         </div>
       ),
     },
+    {
+      id: "camera", label: "Camera", badge: null,
+      icon: (
+        <div className="w-full h-full rounded-[23%] overflow-hidden bg-gradient-to-br from-[#1C1C1E] to-[#2C2C2E] flex items-center justify-center"
+          style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
+          {/* iOS Camera icon style */}
+          <svg viewBox="0 0 24 24" className="w-11 h-11" fill="none">
+            <rect x="2" y="6" width="20" height="14" rx="3" fill="rgba(255,255,255,0.15)" stroke="white" strokeWidth="1.2"/>
+            <circle cx="12" cy="13" r="4" fill="none" stroke="white" strokeWidth="1.4"/>
+            <circle cx="12" cy="13" r="2" fill="white" opacity="0.9"/>
+            <rect x="7" y="4" width="4" height="2.5" rx="1" fill="white" opacity="0.8"/>
+            <circle cx="18.5" cy="9" r="1" fill="white" opacity="0.7"/>
+          </svg>
+        </div>
+      ),
+    },
   ];
 
   // ── Dock icons (iOS 18 style) ─────────────────────────────────────────────

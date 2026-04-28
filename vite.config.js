@@ -7,4 +7,7 @@ export default defineConfig({
     ? '/'
     : '/portofolio_anan/',
   plugins: [react(), tailwindcss()],
+  server: {
+    host: true, // expose ke jaringan lokal
+  },
 })

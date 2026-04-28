@@ -1,120 +1,160 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import scubaVideo from "../../assets/scubaaa.webm";
 
-const SCUBA_GIF = "https://media.tenor.com/8377526270529966891/scuba-scuba-cat.gif";
+// ── Skin color detection + motion ─────────────────────────────────────────────
+// Deteksi pixel warna kulit (YCbCr color space range), lalu cek apakah
+// area kulit tersebut bergerak dibanding frame sebelumnya.
+function isSkinPixel(r, g, b) {
+  // Convert RGB → YCbCr
+  const y  =  0.299 * r + 0.587 * g + 0.114 * b;
+  const cb = -0.169 * r - 0.331 * g + 0.500 * b + 128;
+  const cr =  0.500 * r - 0.419 * g - 0.081 * b + 128;
+  // Standard skin range in YCbCr
+  return y > 80 && cb >= 85 && cb <= 135 && cr >= 135 && cr <= 180;
+}
 
-// Deteksi gerakan tangan: bandingkan posisi wrist frame sekarang vs sebelumnya
-function detectHandMovement(landmarks, prevLandmarks) {
-  if (!prevLandmarks) return false;
-  const wrist = landmarks[0];
-  const prevWrist = prevLandmarks[0];
-  const dx = wrist.x - prevWrist.x;
-  const dy = wrist.y - prevWrist.y;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  return dist > 0.015; // threshold gerakan
+function createHandDetector() {
+  let prevSkinMask = null;
+
+  return function detect(ctx, W, H) {
+    const { data } = ctx.getImageData(0, 0, W, H);
+    const skinMask = new Uint8Array(W * H);
+    let skinCount = 0;
+
+    for (let i = 0; i < W * H; i++) {
+      const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+      if (isSkinPixel(r, g, b)) {
+        skinMask[i] = 1;
+        skinCount++;
+      }
+    }
+
+    const skinRatio = skinCount / (W * H);
+    // Harus ada cukup pixel kulit (tangan di frame): 3%–40%
+    const handPresent = skinRatio > 0.03 && skinRatio < 0.40;
+
+    let moved = false;
+    if (handPresent && prevSkinMask) {
+      // Hitung berapa pixel kulit yang berpindah
+      let diff = 0;
+      for (let i = 0; i < skinMask.length; i++) {
+        if (skinMask[i] !== prevSkinMask[i]) diff++;
+      }
+      // Gerakan tangan: >2% pixel kulit berubah posisi
+      moved = diff / (W * H) > 0.02;
+    }
+
+    prevSkinMask = skinMask;
+    return { handPresent, moved };
+  };
 }
 
 function randomPos() {
   return {
-    top: `${10 + Math.random() * 60}%`,
-    left: `${5 + Math.random() * 70}%`,
-    size: 80 + Math.floor(Math.random() * 80), // 80–160px
-    id: Date.now() + Math.random(),
+    top:  `${5  + Math.random() * 45}%`,
+    left: `${5  + Math.random() * 55}%`,
+    size: 180 + Math.floor(Math.random() * 80),
+    id:   Date.now() + Math.random(),
   };
 }
 
-export default function CameraContent({ isMobile }) {
-  const videoRef    = useRef(null);
-  const canvasRef   = useRef(null);
-  const streamRef   = useRef(null);
-  const handsRef    = useRef(null);
-  const prevLandRef = useRef(null);
-  const cooldownRef = useRef(false);
+export default function CameraContent() {
+  const videoRef     = useRef(null);
+  const canvasRef    = useRef(null);
+  const offscreenRef = useRef(null);
+  const streamRef    = useRef(null);
+  const rafRef       = useRef(null);
+  const cooldownRef  = useRef(false);
+  const detectRef    = useRef(null);
 
-  const [permission,  setPermission]  = useState("idle");
-  const [facingMode,  setFacingMode]  = useState("environment");
-  const [photo,       setPhoto]       = useState(null);
-  const [flash,       setFlash]       = useState(false);
-  const [showHint,    setShowHint]    = useState(true);   // "wave your hand" hint
-  const [cats,        setCats]        = useState([]);     // array of {top,left,size,id}
+  const [permission,   setPermission]   = useState("idle");
+  const [facingMode,   setFacingMode]   = useState("environment");
+  const [photo,        setPhoto]        = useState(null);
+  const [flash,        setFlash]        = useState(false);
+  const [showHint,     setShowHint]     = useState(true);
+  const [cats,         setCats]         = useState([]);
+  const [status,       setStatus]       = useState("ready"); // ready | hand | moving
 
-  // ── Spawn scuba cat ──────────────────────────────────────────────────────
+  // ── Spawn video ────────────────────────────────────────────────────────────
   const spawnCat = useCallback(() => {
     if (cooldownRef.current) return;
     cooldownRef.current = true;
     const pos = randomPos();
     setCats(prev => [...prev, pos]);
-    // Remove after 2.5s
-    setTimeout(() => {
-      setCats(prev => prev.filter(c => c.id !== pos.id));
-    }, 2500);
-    // Cooldown 800ms agar tidak spam
-    setTimeout(() => { cooldownRef.current = false; }, 800);
+    setTimeout(() => setCats(prev => prev.filter(c => c.id !== pos.id)), 5000);
+    setTimeout(() => { cooldownRef.current = false; }, 1500);
   }, []);
 
-  // ── Start camera + MediaPipe Hands ──────────────────────────────────────
-  const startCamera = useCallback(async (facing = "environment") => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop());
-    }
+  // ── Detection loop ─────────────────────────────────────────────────────────
+  const startDetectionLoop = useCallback((video) => {
+    if (!offscreenRef.current) offscreenRef.current = document.createElement("canvas");
+    const oc = offscreenRef.current;
+    const W = 160, H = 90;
+    oc.width = W; oc.height = H;
+    const ctx = oc.getContext("2d", { willReadFrequently: true });
+
+    detectRef.current = createHandDetector();
+
+    let lastCheck = 0;
+    const INTERVAL = 100;
+
+    const loop = (ts) => {
+      rafRef.current = requestAnimationFrame(loop);
+      if (ts - lastCheck < INTERVAL) return;
+      lastCheck = ts;
+      if (!video || video.readyState < 2) return;
+
+      ctx.drawImage(video, 0, 0, W, H);
+      const { handPresent, moved } = detectRef.current(ctx, W, H);
+
+      if (!handPresent) {
+        setStatus("ready");
+      } else if (moved) {
+        setStatus("moving");
+        spawnCat();
+      } else {
+        setStatus("hand");
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(loop);
+  }, [spawnCat]);
+
+  // ── Start camera ───────────────────────────────────────────────────────────
+  const startCamera = useCallback(async (facing) => {
+    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    detectRef.current = null;
     setPhoto(null);
+    setStatus("ready");
+
+    let stream;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: false,
       });
-      streamRef.current = stream;
-      if (videoRef.current) videoRef.current.srcObject = stream;
-      setPermission("granted");
-
-      // Lazy-load MediaPipe Hands
-      const { Hands } = await import("@mediapipe/hands");
-      const hands = new Hands({
-        locateFile: file =>
-          `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
-      });
-      hands.setOptions({
-        maxNumHands: 2,
-        modelComplexity: 0,
-        minDetectionConfidence: 0.6,
-        minTrackingConfidence: 0.5,
-      });
-      hands.onResults(results => {
-        if (!results.multiHandLandmarks?.length) {
-          prevLandRef.current = null;
-          return;
-        }
-        const landmarks = results.multiHandLandmarks[0];
-        if (detectHandMovement(landmarks, prevLandRef.current)) {
-          spawnCat();
-        }
-        prevLandRef.current = landmarks;
-      });
-      handsRef.current = hands;
-
-      // Feed frames to MediaPipe
-      const sendFrame = async () => {
-        if (!videoRef.current || videoRef.current.readyState < 2) {
-          requestAnimationFrame(sendFrame);
-          return;
-        }
-        await hands.send({ image: videoRef.current });
-        requestAnimationFrame(sendFrame);
-      };
-      requestAnimationFrame(sendFrame);
-
     } catch (err) {
       setPermission(err.name === "NotAllowedError" ? "denied" : "error");
+      return;
     }
-  }, [spawnCat]);
+
+    streamRef.current = stream;
+    const video = videoRef.current;
+    if (video) {
+      video.srcObject = stream;
+      video.onloadeddata = () => startDetectionLoop(video);
+    }
+    setPermission("granted");
+  }, [startDetectionLoop]);
 
   useEffect(() => {
-    startCamera(facingMode);
-    // Hide hint after 4s
-    const t = setTimeout(() => setShowHint(false), 4000);
+    startCamera("environment");
+    const t = setTimeout(() => setShowHint(false), 5000);
     return () => {
       clearTimeout(t);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
-      handsRef.current?.close?.();
     };
   }, []);
 
@@ -126,8 +166,7 @@ export default function CameraContent({ isMobile }) {
 
   const takePhoto = () => {
     if (!videoRef.current || !canvasRef.current) return;
-    const v = videoRef.current;
-    const c = canvasRef.current;
+    const v = videoRef.current, c = canvasRef.current;
     c.width = v.videoWidth; c.height = v.videoHeight;
     c.getContext("2d").drawImage(v, 0, 0);
     setPhoto(c.toDataURL("image/jpeg", 0.92));
@@ -141,7 +180,14 @@ export default function CameraContent({ isMobile }) {
     a.href = photo; a.download = `photo_${Date.now()}.jpg`; a.click();
   };
 
-  // ── Error states ─────────────────────────────────────────────────────────
+  const statusConfig = {
+    ready:  { color: "rgba(255,255,255,0.3)", label: "No hand" },
+    hand:   { color: "#3b82f6",              label: "Hand ✋" },
+    moving: { color: "#22c55e",              label: "Moving! 🖐️" },
+  };
+  const sc = statusConfig[status] ?? statusConfig.ready;
+
+  // ── Error screens ──────────────────────────────────────────────────────────
   if (permission === "denied") return (
     <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-white text-center">
       <div className="text-5xl">🚫</div>
@@ -149,25 +195,24 @@ export default function CameraContent({ isMobile }) {
       <p className="text-white/60 text-sm">Allow camera access in your browser settings, then refresh.</p>
     </div>
   );
+
   if (permission === "error") return (
     <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-white text-center">
       <div className="text-5xl">⚠️</div>
       <p className="font-semibold">Camera not available</p>
       <p className="text-white/60 text-sm">
-        Camera requires a secure connection (HTTPS).<br/>
-        Try accessing via <span className="text-cyan-300">localhost:5173</span> or deploy to Vercel.
+        Camera requires HTTPS.<br />
+        Access via <span className="text-cyan-300 font-mono">localhost:5173</span> or deploy to Vercel.
       </p>
     </div>
   );
 
+  // ── Main UI ────────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col h-full bg-black relative overflow-hidden">
       <canvas ref={canvasRef} className="hidden" />
-
-      {/* Flash */}
       {flash && <div className="absolute inset-0 bg-white z-30 pointer-events-none" />}
 
-      {/* Viewfinder */}
       <div className="flex-1 relative overflow-hidden">
         {photo ? (
           <img src={photo} alt="captured" className="w-full h-full object-contain bg-black" />
@@ -180,7 +225,7 @@ export default function CameraContent({ isMobile }) {
           />
         )}
 
-        {/* Grid */}
+        {/* Grid overlay */}
         {!photo && (
           <div className="absolute inset-0 pointer-events-none" style={{
             backgroundImage: "linear-gradient(rgba(255,255,255,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.07) 1px,transparent 1px)",
@@ -188,30 +233,47 @@ export default function CameraContent({ isMobile }) {
           }} />
         )}
 
-        {/* "Wave your hand" hint */}
+        {/* Status indicator */}
+        {!photo && (
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+            <div
+              className="w-2.5 h-2.5 rounded-full transition-all duration-300"
+              style={{
+                background: sc.color,
+                boxShadow: status !== "ready" ? `0 0 8px ${sc.color}` : "none",
+              }}
+            />
+            <span className="text-white/60 text-[10px] font-medium">{sc.label}</span>
+          </div>
+        )}
+
+        {/* Hint */}
         {showHint && !photo && (
           <div
             className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-white text-sm font-medium flex items-center gap-2 animate-bounce"
-            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.2)" }}
+            style={{
+              background: "rgba(0,0,0,0.65)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              whiteSpace: "nowrap",
+            }}
           >
             <span>👋</span> Wave your hand for a surprise!
           </div>
         )}
 
-        {/* Scuba cats */}
+        {/* Scuba video spawns */}
         {cats.map(cat => (
-          <img
+          <video
             key={cat.id}
-            src={SCUBA_GIF}
-            alt="scuba cat"
+            src={scubaVideo}
+            autoPlay loop muted playsInline
             className="absolute pointer-events-none"
             style={{
-              top: cat.top,
-              left: cat.left,
-              width: cat.size,
-              height: cat.size,
-              borderRadius: "50%",
-              animation: "cat-pop 2.5s ease-out forwards",
+              top: cat.top, left: cat.left,
+              width: cat.size, height: cat.size,
+              objectFit: "contain",
+              animation: "cat-pop 5s ease-out forwards",
               zIndex: 20,
             }}
           />
@@ -219,10 +281,10 @@ export default function CameraContent({ isMobile }) {
 
         <style>{`
           @keyframes cat-pop {
-            0%   { opacity:0; transform: scale(0.3) rotate(-10deg); }
-            20%  { opacity:1; transform: scale(1.1) rotate(5deg); }
-            80%  { opacity:1; transform: scale(1) rotate(0deg); }
-            100% { opacity:0; transform: scale(0.8) translateY(-20px); }
+            0%   { opacity:0; transform:scale(0.2) rotate(-15deg); }
+            12%  { opacity:1; transform:scale(1.15) rotate(6deg); }
+            85%  { opacity:1; transform:scale(1) rotate(0deg); }
+            100% { opacity:0; transform:scale(0.9) translateY(-20px); }
           }
         `}</style>
       </div>

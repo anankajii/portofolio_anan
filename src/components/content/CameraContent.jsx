@@ -1,59 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import scubaVideo from "../../assets/scubaaa.webm";
 
-// ── Skin color detection + motion ─────────────────────────────────────────────
-// Deteksi pixel warna kulit (YCbCr color space range), lalu cek apakah
-// area kulit tersebut bergerak dibanding frame sebelumnya.
-function isSkinPixel(r, g, b) {
-  // Convert RGB → YCbCr
-  const y  =  0.299 * r + 0.587 * g + 0.114 * b;
-  const cb = -0.169 * r - 0.331 * g + 0.500 * b + 128;
-  const cr =  0.500 * r - 0.419 * g - 0.081 * b + 128;
-  // Standard skin range in YCbCr
-  return y > 80 && cb >= 85 && cb <= 135 && cr >= 135 && cr <= 180;
-}
-
-function createHandDetector() {
-  let prevSkinMask = null;
-
-  return function detect(ctx, W, H) {
-    const { data } = ctx.getImageData(0, 0, W, H);
-    const skinMask = new Uint8Array(W * H);
-    let skinCount = 0;
-
-    for (let i = 0; i < W * H; i++) {
-      const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
-      if (isSkinPixel(r, g, b)) {
-        skinMask[i] = 1;
-        skinCount++;
-      }
-    }
-
-    const skinRatio = skinCount / (W * H);
-    // Harus ada cukup pixel kulit (tangan di frame): 3%–40%
-    const handPresent = skinRatio > 0.03 && skinRatio < 0.40;
-
-    let moved = false;
-    if (handPresent && prevSkinMask) {
-      // Hitung berapa pixel kulit yang berpindah
-      let diff = 0;
-      for (let i = 0; i < skinMask.length; i++) {
-        if (skinMask[i] !== prevSkinMask[i]) diff++;
-      }
-      // Gerakan tangan: >2% pixel kulit berubah posisi
-      moved = diff / (W * H) > 0.02;
-    }
-
-    prevSkinMask = skinMask;
-    return { handPresent, moved };
-  };
-}
-
 function randomPos() {
   return {
     top:  `${5  + Math.random() * 45}%`,
     left: `${5  + Math.random() * 55}%`,
-    size: 180 + Math.floor(Math.random() * 80),
+    size: 260 + Math.floor(Math.random() * 80),
     id:   Date.now() + Math.random(),
   };
 }
@@ -65,38 +17,43 @@ export default function CameraContent() {
   const streamRef    = useRef(null);
   const rafRef       = useRef(null);
   const cooldownRef  = useRef(false);
-  const detectRef    = useRef(null);
+  const prevDataRef  = useRef(null);
 
-  const [permission,   setPermission]   = useState("idle");
-  const [facingMode,   setFacingMode]   = useState("environment");
-  const [photo,        setPhoto]        = useState(null);
-  const [flash,        setFlash]        = useState(false);
-  const [showHint,     setShowHint]     = useState(true);
-  const [cats,         setCats]         = useState([]);
-  const [status,       setStatus]       = useState("ready"); // ready | hand | moving
+  const [permission, setPermission] = useState("idle");
+  const [facingMode, setFacingMode] = useState("environment");
+  const [photo,      setPhoto]      = useState(null);
+  const [flash,      setFlash]      = useState(false);
+  const [showHint,   setShowHint]   = useState(true);
+  const [cats,       setCats]       = useState([]);
+  const [moving,     setMoving]     = useState(false);
 
   // ── Spawn video ────────────────────────────────────────────────────────────
   const spawnCat = useCallback(() => {
     if (cooldownRef.current) return;
     cooldownRef.current = true;
+    setMoving(true);
     const pos = randomPos();
     setCats(prev => [...prev, pos]);
     setTimeout(() => setCats(prev => prev.filter(c => c.id !== pos.id)), 5000);
-    setTimeout(() => { cooldownRef.current = false; }, 1500);
+    setTimeout(() => {
+      cooldownRef.current = false;
+      setMoving(false);
+    }, 1200);
   }, []);
 
-  // ── Detection loop ─────────────────────────────────────────────────────────
+  // ── Motion detection loop ──────────────────────────────────────────────────
   const startDetectionLoop = useCallback((video) => {
     if (!offscreenRef.current) offscreenRef.current = document.createElement("canvas");
     const oc = offscreenRef.current;
-    const W = 160, H = 90;
+    // Resolusi kecil → cepat, tapi cukup untuk deteksi gerakan
+    const W = 120, H = 68;
     oc.width = W; oc.height = H;
     const ctx = oc.getContext("2d", { willReadFrequently: true });
 
-    detectRef.current = createHandDetector();
+    prevDataRef.current = null;
 
     let lastCheck = 0;
-    const INTERVAL = 100;
+    const INTERVAL = 80; // ~12fps
 
     const loop = (ts) => {
       rafRef.current = requestAnimationFrame(loop);
@@ -105,16 +62,30 @@ export default function CameraContent() {
       if (!video || video.readyState < 2) return;
 
       ctx.drawImage(video, 0, 0, W, H);
-      const { handPresent, moved } = detectRef.current(ctx, W, H);
+      const curr = ctx.getImageData(0, 0, W, H).data;
 
-      if (!handPresent) {
-        setStatus("ready");
-      } else if (moved) {
-        setStatus("moving");
-        spawnCat();
-      } else {
-        setStatus("hand");
+      if (!prevDataRef.current) {
+        prevDataRef.current = new Uint8ClampedArray(curr);
+        return;
       }
+
+      const prev = prevDataRef.current;
+      let diffCount = 0;
+      const total = W * H;
+
+      for (let i = 0; i < curr.length; i += 4) {
+        const dr = Math.abs(curr[i]     - prev[i]);
+        const dg = Math.abs(curr[i + 1] - prev[i + 1]);
+        const db = Math.abs(curr[i + 2] - prev[i + 2]);
+        // Threshold per-pixel: 20 (cukup sensitif)
+        if (dr + dg + db > 20) diffCount++;
+      }
+
+      prev.set(curr);
+
+      // Trigger jika >1.5% pixel berubah
+      const ratio = diffCount / total;
+      if (ratio > 0.015) spawnCat();
     };
 
     rafRef.current = requestAnimationFrame(loop);
@@ -124,9 +95,9 @@ export default function CameraContent() {
   const startCamera = useCallback(async (facing) => {
     if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    detectRef.current = null;
+    prevDataRef.current = null;
     setPhoto(null);
-    setStatus("ready");
+    setMoving(false);
 
     let stream;
     try {
@@ -180,13 +151,6 @@ export default function CameraContent() {
     a.href = photo; a.download = `photo_${Date.now()}.jpg`; a.click();
   };
 
-  const statusConfig = {
-    ready:  { color: "rgba(255,255,255,0.3)", label: "No hand" },
-    hand:   { color: "#3b82f6",              label: "Hand ✋" },
-    moving: { color: "#22c55e",              label: "Moving! 🖐️" },
-  };
-  const sc = statusConfig[status] ?? statusConfig.ready;
-
   // ── Error screens ──────────────────────────────────────────────────────────
   if (permission === "denied") return (
     <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-white text-center">
@@ -233,17 +197,19 @@ export default function CameraContent() {
           }} />
         )}
 
-        {/* Status indicator */}
+        {/* Motion indicator */}
         {!photo && (
           <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
             <div
-              className="w-2.5 h-2.5 rounded-full transition-all duration-300"
+              className="w-2.5 h-2.5 rounded-full transition-all duration-200"
               style={{
-                background: sc.color,
-                boxShadow: status !== "ready" ? `0 0 8px ${sc.color}` : "none",
+                background: moving ? "#22c55e" : "rgba(255,255,255,0.3)",
+                boxShadow: moving ? "0 0 8px #22c55e" : "none",
               }}
             />
-            <span className="text-white/60 text-[10px] font-medium">{sc.label}</span>
+            <span className="text-white/50 text-[10px] font-medium">
+              {moving ? "MOTION" : "READY"}
+            </span>
           </div>
         )}
 

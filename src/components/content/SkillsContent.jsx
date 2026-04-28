@@ -1,42 +1,59 @@
 const technical = [
-  { name: "Java",            icon: "☕", color: "rgba(176,114,25,0.25)",  border: "rgba(176,114,25,0.5)"  },
-  { name: "PHP",             icon: "🐘", color: "rgba(119,123,180,0.25)", border: "rgba(119,123,180,0.5)" },
-  { name: "Flutter",         icon: "💙", color: "rgba(84,197,248,0.25)",  border: "rgba(84,197,248,0.5)"  },
-  { name: "Laravel",         icon: "🔺", color: "rgba(255,45,32,0.25)",   border: "rgba(255,45,32,0.5)"   },
-  { name: "REST API",        icon: "🔗", color: "rgba(99,102,241,0.25)",  border: "rgba(99,102,241,0.5)"  },
-  { name: "Postman",         icon: "📮", color: "rgba(255,108,55,0.25)",  border: "rgba(255,108,55,0.5)"  },
-  { name: "MySQL",           icon: "🐬", color: "rgba(0,117,143,0.25)",   border: "rgba(0,117,143,0.5)"   },
-  { name: "HTML",            icon: "🌐", color: "rgba(227,76,38,0.25)",   border: "rgba(227,76,38,0.5)"   },
-  { name: "CSS",             icon: "🎨", color: "rgba(86,61,124,0.25)",   border: "rgba(86,61,124,0.5)"   },
-  { name: "Git / GitHub",    icon: "🐙", color: "rgba(36,41,46,0.4)",     border: "rgba(255,255,255,0.3)" },
-  { name: "Database Design", icon: "🗄️", color: "rgba(6,182,212,0.25)",   border: "rgba(6,182,212,0.5)"   },
+  { name: "Java",            icon: "☕", bg: "linear-gradient(135deg,#b07219,#7a4f10)" },
+  { name: "PHP",             icon: "🐘", bg: "linear-gradient(135deg,#7377b4,#4f5380)" },
+  { name: "Flutter",         icon: "💙", bg: "linear-gradient(135deg,#54C5F8,#01579B)" },
+  { name: "Laravel",         icon: "🔺", bg: "linear-gradient(135deg,#FF2D20,#a01a14)" },
+  { name: "REST API",        icon: "🔗", bg: "linear-gradient(135deg,#6366f1,#4338ca)" },
+  { name: "HTML",            icon: "🌐", bg: "linear-gradient(135deg,#e34c26,#a33318)" },
+  { name: "CSS",             icon: "🎨", bg: "linear-gradient(135deg,#563d7c,#3a2854)" },
+  { name: "Git / GitHub",    icon: "🐙", bg: "linear-gradient(135deg,#24292e,#000)" },
+  { name: "Database Design", icon: "🗄️", bg: "linear-gradient(135deg,#06b6d4,#0e7490)" },
 ];
 
 const tools = [
-  { name: "VS Code",           icon: "💻", color: "rgba(0,122,204,0.25)",  border: "rgba(0,122,204,0.5)"  },
-  { name: "NetBeans",          icon: "🟠", color: "rgba(255,140,0,0.25)",  border: "rgba(255,140,0,0.5)"  },
-  { name: "Android Studio",    icon: "🤖", color: "rgba(61,220,132,0.25)", border: "rgba(61,220,132,0.5)" },
-  { name: "XAMPP",             icon: "🦈", color: "rgba(251,130,0,0.25)",  border: "rgba(251,130,0,0.5)"  },
-  { name: "Laragon",           icon: "🐉", color: "rgba(0,188,212,0.25)",  border: "rgba(0,188,212,0.5)"  },
-  { name: "phpMyAdmin",        icon: "🗃️", color: "rgba(244,127,36,0.25)", border: "rgba(244,127,36,0.5)" },
-  { name: "Figma",             icon: "🎭", color: "rgba(162,89,255,0.25)", border: "rgba(162,89,255,0.5)" },
-  { name: "Canva",             icon: "🖼️", color: "rgba(0,196,204,0.25)",  border: "rgba(0,196,204,0.5)"  },
-  { name: "Adobe Illustrator", icon: "✏️", color: "rgba(255,154,0,0.25)",  border: "rgba(255,154,0,0.5)"  },
-  { name: "Adobe Lightroom",   icon: "📷", color: "rgba(49,117,186,0.25)", border: "rgba(49,117,186,0.5)" },
+  { name: "VS Code",           icon: "💻", bg: "linear-gradient(135deg,#007ACC,#005a9e)" },
+  { name: "Postman",           icon: "📮", bg: "linear-gradient(135deg,#FF6C37,#c44a1e)" },
+  { name: "Android Studio",    icon: "🤖", bg: "linear-gradient(135deg,#3DDC84,#1a8a4a)" },
+  { name: "XAMPP",             icon: "🦈", bg: "linear-gradient(135deg,#FB8200,#b35c00)" },
+  { name: "Laragon",           icon: "🐉", bg: "linear-gradient(135deg,#00BCD4,#00838f)" },
+  { name: "phpMyAdmin",        img: "https://ampps.com/sitepad-data/uploads/2023/03/phpMyAdmin-Logo-Space.png", bg: "#ffffff" },
+  { name: "Figma",             icon: "🎭", bg: "linear-gradient(135deg,#A259FF,#6b2fc7)" },
+  { name: "Canva",             img: "https://images.seeklogo.com/logo-png/43/1/canva-logo-png_seeklogo-438258.png", bg: "linear-gradient(135deg,#00C4CC,#007b80)" },
+  { name: "Adobe Illustrator", icon: "✏️", bg: "linear-gradient(135deg,#FF9A00,#b36a00)" },
+  { name: "Adobe Lightroom",   icon: "📷", bg: "linear-gradient(135deg,#3175D4,#1a4a9e)" },
 ];
 
-function BadgeList({ items }) {
+function IconGrid({ items, startDelay = 0 }) {
   return (
-    <div className="flex flex-wrap gap-2">
-      {items.map((item) => (
-        <span
+    <div className="grid grid-cols-4 gap-4 sm:grid-cols-5">
+      {items.map((item, i) => (
+        <div
           key={item.name}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm text-white font-medium"
-          style={{ background: item.color, border: `1px solid ${item.border}` }}
+          className="flex flex-col items-center gap-2"
+          style={{
+            animation: `float-icon 3s ease-in-out infinite`,
+            animationDelay: `${(startDelay + i * 0.18) % 3}s`,
+          }}
         >
-          <span>{item.icon}</span>
-          {item.name}
-        </span>
+          {/* Icon bubble */}
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden"
+            style={{
+              background: item.bg,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
+            }}
+          >
+            {item.img ? (
+              <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-2xl leading-none">{item.icon}</span>
+            )}
+          </div>
+          {/* Label */}
+          <span className="text-white/75 text-[10px] font-medium text-center leading-tight max-w-[56px]">
+            {item.name}
+          </span>
+        </div>
       ))}
     </div>
   );
@@ -49,13 +66,21 @@ export default function SkillsContent({ isMobile }) {
 
   return (
     <div className="p-6 space-y-5 text-white">
-      <div className="rounded-2xl p-4 space-y-3" style={cardStyle}>
-        <h3 className="font-semibold text-white/90 text-sm uppercase tracking-wider">⚙️ Technical</h3>
-        <BadgeList items={technical} />
+      <style>{`
+        @keyframes float-icon {
+          0%, 100% { transform: translateY(0px); }
+          50%       { transform: translateY(-6px); }
+        }
+      `}</style>
+
+      <div className="rounded-2xl p-5 space-y-4" style={cardStyle}>
+        <h3 className="font-semibold text-white/80 text-xs uppercase tracking-widest">⚙️ Technical</h3>
+        <IconGrid items={technical} startDelay={0} />
       </div>
-      <div className="rounded-2xl p-4 space-y-3" style={cardStyle}>
-        <h3 className="font-semibold text-white/90 text-sm uppercase tracking-wider">🛠️ Tools</h3>
-        <BadgeList items={tools} />
+
+      <div className="rounded-2xl p-5 space-y-4" style={cardStyle}>
+        <h3 className="font-semibold text-white/80 text-xs uppercase tracking-widest">🛠️ Tools</h3>
+        <IconGrid items={tools} startDelay={0.5} />
       </div>
     </div>
   );

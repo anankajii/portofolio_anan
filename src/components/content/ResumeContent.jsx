@@ -2,8 +2,8 @@ import { useState } from "react";
 import cvPdf from "../../assets/CV_M_Khanan Mukhtar_B.pdf";
 
 const TABS = [
-  { id: "cv",         label: "📄 CV" },
-  { id: "sertifikat", label: "🏆 Sertifikat" },
+  { id: "cv",           label: "📄 CV" },
+  { id: "sertifikat",   label: "🏆 Certificates" },
 ];
 
 const LINKS = {
@@ -40,7 +40,7 @@ export default function ResumeContent({ isMobile }) {
         <iframe
           key={activeTab}
           src={LINKS[activeTab]}
-          title={activeTab === "cv" ? "CV M. Khanan Mukhtar" : "Sertifikat"}
+          title={activeTab === "cv" ? "CV M. Khanan Mukhtar" : "Certificates"}
           className="w-full h-full"
           style={{ minHeight: isMobile ? "65vh" : "480px", border: "none" }}
         />
@@ -60,7 +60,7 @@ export default function ResumeContent({ isMobile }) {
           <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white flex-shrink-0">
             <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
           </svg>
-          Buka di Tab Baru
+          Open in New Tab
         </a>
       </div>
     </div>

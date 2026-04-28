@@ -1,3 +1,5 @@
+import profilePhoto from "../../assets/photo_profile.jpeg";
+
 export default function LinkedInContent({ isMobile }) {
   const sectionCard = isMobile
     ? { background: "rgba(255,255,255,0.07)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.12)" }
@@ -8,11 +10,14 @@ export default function LinkedInContent({ isMobile }) {
       {/* Cover */}
       <div className="h-32 bg-gradient-to-r from-blue-700/80 via-blue-500/80 to-cyan-500/80 relative">
         <div className="absolute -bottom-10 left-6">
-          <div
-            className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-3xl shadow-xl"
-            style={{ border: "4px solid rgba(255,255,255,0.2)" }}
-          >
-            👨‍💻
+          <div className="w-20 h-20 rounded-full overflow-hidden shadow-xl"
+            style={{ border: "4px solid rgba(255,255,255,0.2)" }}>
+            <img
+              src={profilePhoto}
+              alt="M. Khanan Mukhtar"
+              className="w-full h-full object-cover object-top scale-[1.75]"
+              style={{ transformOrigin: 'center 20%' }}
+            />
           </div>
         </div>
         <a
@@ -68,8 +73,8 @@ export default function LinkedInContent({ isMobile }) {
       <div className="mx-4 mt-3 rounded-xl p-4" style={sectionCard}>
         <h2 className="font-semibold text-white mb-2">About</h2>
         <p className="text-white/65 text-sm leading-relaxed">
-          Fullstack Developer dengan passion dalam membangun sistem yang real-world dan bermanfaat.
-          Berpengalaman dalam Java, Laravel, React, dan Vue.js. Saya suka membangun solusi yang efisien dan scalable.
+          Fullstack Developer with a passion for building real-world and impactful systems.
+          Experienced in Java, Laravel, React, and Vue.js. I enjoy building efficient and scalable solutions.
         </p>
       </div>
 
@@ -109,8 +114,8 @@ export default function LinkedInContent({ isMobile }) {
             style={{ border: "1px solid rgba(74,222,128,0.3)" }}>🎓</div>
           <div>
             <h3 className="text-white text-sm font-medium">Politeknik Negeri Jember</h3>
-            <p className="text-white/50 text-xs">Teknik Informatika - PSDKU Nganjuk</p>
-            <p className="text-white/40 text-xs">2024 – Sekarang</p>
+            <p className="text-white/50 text-xs">Informatics Engineering - PSDKU Nganjuk</p>
+            <p className="text-white/40 text-xs">2024 – Present</p>
           </div>
         </div>
       </div>

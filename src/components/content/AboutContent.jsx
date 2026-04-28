@@ -1,3 +1,5 @@
+import profilePhoto from "../../assets/photo_profile.jpeg";
+
 export default function AboutContent({ isMobile }) {
   const cardStyle = isMobile
     ? { background: "rgba(255,255,255,0.08)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.15)" }
@@ -6,8 +8,14 @@ export default function AboutContent({ isMobile }) {
   return (
     <div className="p-6 text-white">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full flex items-center justify-center text-4xl shadow-lg flex-shrink-0">
-          👨‍💻
+        <div className="w-20 h-20 rounded-full overflow-hidden flex-shrink-0 shadow-lg"
+          style={{ border: "2px solid rgba(255,255,255,0.25)" }}>
+          <img
+            src={profilePhoto}
+            alt="M. Khanan Mukhtar"
+            className="w-full h-full object-cover object-top scale-[1.75]"
+            style={{ transformOrigin: 'center 60%' }}
+          />
         </div>
         <div>
           <h2 className="text-xl font-bold">M. Khanan Mukhtar</h2>
@@ -17,8 +25,8 @@ export default function AboutContent({ isMobile }) {
       </div>
 
       <div className="space-y-3 text-gray-300 text-sm leading-relaxed">
-        <p>Fullstack Developer dengan passion dalam membangun sistem yang real-world dan bermanfaat.</p>
-        <p>Berpengalaman dalam Java, Laravel, React, dan Vue.js untuk membangun solusi yang efisien dan scalable.</p>
+        <p>Fullstack Developer with a passion for building real-world and impactful systems.</p>
+        <p>Experienced in Java, Laravel, React, and Vue.js to build efficient and scalable solutions.</p>
       </div>
 
       <div className="mt-5 space-y-2 rounded-2xl p-4" style={cardStyle}>

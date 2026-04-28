@@ -1,4 +1,5 @@
 import { useState } from "react";
+import profilePhoto from "../assets/photo_profile.jpeg";
 
 export default function ProfileCard({ onClose }) {
   const [isVisible, setIsVisible] = useState(true);
@@ -138,8 +139,13 @@ export default function ProfileCard({ onClose }) {
         <div className="bg-white/5 backdrop-blur-xl px-6 py-4 flex items-center justify-between border-t border-white/10">
           {/* Profile */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full flex items-center justify-center text-2xl shadow-lg">
-              👨‍💻
+            <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg flex-shrink-0">
+              <img
+                src={profilePhoto}
+                alt="M. Khanan Mukhtar"
+                className="w-full h-full object-cover object-top scale-[1.75]"
+                style={{ transformOrigin: 'center 60%' }}
+              />
             </div>
             <div>
               <h3 className="text-white font-bold text-sm">M.Khanan Mukhtar</h3>

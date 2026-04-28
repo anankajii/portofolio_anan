@@ -4,37 +4,37 @@ const projects = [
   {
     title: "OrtuConnect",
     category: "Mobile & Web",
-    description: "Aplikasi komunikasi orang tua dan sekolah berbasis Mobile Android & Website.",
+    description: "Parent-school communication app for Mobile Android & Website.",
     url: "https://pameran-jti.polije.ac.id/product/424/ortuconnect",
     image: "https://pameran-jti.polije.ac.id/public/uploads/posters/17/poster_6938103269aaa.jpg",
-    role: "Ketua Kelompok",
+    role: "Team Leader",
     team: "E-MOT TEAM",
     rating: "5.0 ⭐",
   },
   {
-    title: "Aplikasi Kasir Sandangan Access",
+    title: "Sandangan Access POS",
     category: "Desktop",
-    description: "Aplikasi kasir digital berbasis desktop untuk UMKM fashion lokal. Kelola penjualan, stok, dan pembelian secara offline.",
+    description: "Digital cashier app for local fashion SMEs. Manage sales, stock, and purchases offline.",
     url: "https://pameran-jti.polije.ac.id/product/241/aplikasi-kasir-sandangan-access",
     image: "https://pameran-jti.polije.ac.id/public/uploads/posters/14/poster_6830a933eb5d0.jpg",
-    role: "Anggota",
+    role: "Member",
     team: "KomkasPro",
     rating: null,
   },
   {
     title: "Bakul Sandangan",
     category: "Desktop",
-    description: "Aplikasi pembukuan UMKM berbasis desktop untuk mencatat keuangan, stok, transaksi penjualan & pembelian.",
+    description: "Desktop bookkeeping app for SMEs to record finances, stock, and transactions.",
     url: "https://pameran-jti.polije.ac.id/x23241_ng/product/134/aplikasi-pembukuan-umkm-bakul-sandangan",
     image: "https://pameran-jti.polije.ac.id/x23241_ng/public/img/screenshots/134_1.jpg",
-    role: "Anggota",
+    role: "Member",
     team: "—",
     rating: null,
   },
   {
-    title: "Desain Poster",
+    title: "Poster Design",
     category: "Design",
-    description: "Koleksi desain poster untuk berbagai keperluan event, promosi, dan organisasi.",
+    description: "Collection of poster designs for events, promotions, and organizations.",
     url: null,
     image: null,
     role: null,
@@ -44,7 +44,7 @@ const projects = [
   {
     title: "UI/UX Design",
     category: "Design",
-    description: "Desain antarmuka aplikasi mobile dan web menggunakan Figma.",
+    description: "Mobile and web app interface designs using Figma.",
     url: null,
     image: null,
     role: null,
@@ -202,7 +202,7 @@ export default function ProjectsContent({ isMobile }) {
                         <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current flex-shrink-0">
                           <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
                         </svg>
-                        Lihat Project
+                        View Project
                       </a>
                     )}
                   </div>
